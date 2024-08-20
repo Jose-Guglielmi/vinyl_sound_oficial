@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:vinyl_sound_oficial/presentation/widgets/search_text_field.dart';
 
 import '../widgets/artistas_view.dart';
+import '../widgets/canciones_view.dart';
 
 class BuscadorPage extends StatelessWidget {
   const BuscadorPage({
@@ -62,42 +63,12 @@ class BuscadorPage extends StatelessWidget {
                 ),
               ),
             ),
-            SizedBox(
+            const SizedBox(
               height: 50,
             )
           ],
         ),
       ),
     );
-  }
-}
-
-class CancionesView extends StatelessWidget {
-  const CancionesView({
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return ListView.builder(
-        itemCount: 20,
-        itemBuilder: (context, index) {
-          return Row(
-            children: [
-              ClipOval(
-                child: Image.network(
-                  "https://lh3.googleusercontent.com/xSk9Ej427QD9qTs24NkEQFiU23p8KURWUVcdy-Sp1nU7YaxmeTDstuqm0ot_chPzbogJnnwuWjoXk2Y=w2880-h1200-p-l90-rj",
-                  height: 80,
-                  width: 80,
-                  fit: BoxFit.cover,
-                ),
-              ),
-              const Padding(
-                padding: EdgeInsets.fromLTRB(0, 6, 0, 0),
-                child: Text("ColdPlay"),
-              ),
-            ],
-          );
-        });
   }
 }
