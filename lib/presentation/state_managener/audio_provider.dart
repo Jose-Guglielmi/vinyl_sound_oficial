@@ -278,6 +278,7 @@ class AudioProvider extends ChangeNotifier {
   //funcion que se encarga de detener el audio
   void stop() {
     player.stop();
+    reproduciendo = false;
     notifyListeners();
   }
 

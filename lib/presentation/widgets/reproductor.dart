@@ -245,7 +245,13 @@ class _RepState extends State<Rep> {
                       icon: const Icon(Icons.playlist_add),
                       color: Colors.white,
                       iconSize: 45,
-                      onPressed: () {},
+                      onPressed: () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Se Agrego Una playList'),
+                          ),
+                        );
+                      },
                     ),
                     Row(
                       children: [
@@ -294,16 +300,12 @@ class _RepState extends State<Rep> {
                       color: Colors.white,
                       iconSize: 45,
                       onPressed: () async {
-                        widget.audioProvider.agregarCancion(
-                            widget.audioProvider.cancionSeleccionado);
-                        final SharedPreferences prefs =
-                            await SharedPreferences.getInstance();
+                        //widget.audioProvider.agregarCancion(widget.audioProvider.cancionSeleccionado);
+                        //final SharedPreferences prefs =
+                        //await SharedPreferences.getInstance();
 
-                        CancionesList listCanciones = CancionesList(
-                            canciones:
-                                widget.audioProvider.listaCancionesMeGustas);
-                        await prefs.setString(
-                            'cancionesMeGusta', listCanciones.toJson());
+                        //CancionesList listCanciones = CancionesList(canciones:widget.audioProvider.listaCancionesMeGustas);
+                        //await prefs.setString('cancionesMeGusta', listCanciones.toJson());
                         // ignore: use_build_context_synchronously
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
