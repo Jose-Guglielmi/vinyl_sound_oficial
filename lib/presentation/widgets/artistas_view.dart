@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:vinyl_sound_oficial/presentation/domain/entitis/artist.dart';
+import 'package:vinyl_sound_oficial/presentation/state_managener/audio_provider.dart';
 
 class ArtistasView extends StatelessWidget {
   const ArtistasView({
@@ -7,10 +10,19 @@ class ArtistasView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final audioProvider = Provider.of<AudioProvider>(context);
+
+    final List<Artist> listaArtistas = audioProvider.listaArtistas;
+
     return ListView.builder(
       scrollDirection: Axis.horizontal,
-      itemCount: 20,
+      itemCount: listaArtistas.length,
       itemBuilder: (context, index) {
+        Artist artista = listaArtistas[index];
+
+        final String nombre = (artista.title.length <= 8)
+            ? artista.title
+            : "${artista.title.substring(0, 8)}...";
         return Row(
           children: [
             Padding(
@@ -19,15 +31,15 @@ class ArtistasView extends StatelessWidget {
                 children: [
                   ClipOval(
                     child: Image.network(
-                      "https://lh3.googleusercontent.com/xSk9Ej427QD9qTs24NkEQFiU23p8KURWUVcdy-Sp1nU7YaxmeTDstuqm0ot_chPzbogJnnwuWjoXk2Y=w2880-h1200-p-l90-rj",
+                      artista.thumbnail,
                       height: 80,
                       width: 80,
                       fit: BoxFit.cover,
                     ),
                   ),
-                  const Padding(
-                    padding: EdgeInsets.fromLTRB(0, 6, 0, 0),
-                    child: Text("ColdPlay"),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(0, 6, 0, 0),
+                    child: Text(nombre),
                   ),
                 ],
               ),
