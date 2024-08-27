@@ -25,14 +25,14 @@ class BuscadorPage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             const Padding(
-              padding: EdgeInsets.fromLTRB(0, 20, 0, 15),
+              padding: EdgeInsets.all(10.0),
               child: Text(
                 "Buscador",
                 style: TextStyle(color: Colors.white, fontSize: 20.0),
               ),
             ),
             const Padding(
-              padding: EdgeInsets.fromLTRB(15, 0, 15, 25),
+              padding: EdgeInsets.all(15),
               child: SearchTextField(),
             ),
             const Text(
@@ -52,9 +52,6 @@ class BuscadorPage extends StatelessWidget {
                     ? const Expanded(child: ArtistasView())
                     : const SinResultados(),
               ),
-            ),
-            const SizedBox(
-              height: 10,
             ),
             const Text(
               "Canciones",

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:vinyl_sound_oficial/presentation/screens/biblioteca.dart';
 import 'package:vinyl_sound_oficial/presentation/screens/favorites_page.dart';
 import 'package:vinyl_sound_oficial/presentation/state_managener/audio_provider.dart';
 import 'package:vinyl_sound_oficial/presentation/widgets/reproductor.dart';
@@ -54,7 +55,7 @@ class HomeState extends State<Home> {
       case 1:
         return const FavoritesPage();
       case 2:
-        return const FavoritesPage();
+        return const Biblioteca();
       case 3:
         return const Reproductor();
       default:

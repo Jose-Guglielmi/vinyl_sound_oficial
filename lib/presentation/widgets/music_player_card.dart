@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:vinyl_sound_oficial/main.dart';
 import 'package:vinyl_sound_oficial/presentation/domain/entitis/cancion.dart';
 import 'package:vinyl_sound_oficial/presentation/state_managener/audio_provider.dart';
+import 'package:vinyl_sound_oficial/presentation/widgets/scrolling_text.dart';
 
 class MusicPlayerCard extends StatefulWidget {
   const MusicPlayerCard({super.key});
@@ -20,14 +21,6 @@ class _MusicPlayerCardState extends State<MusicPlayerCard> {
 
     Cancion cancion = audioProvider.cancionSeleccionado;
 
-    final String nombreCancion =
-        (cancion.title.isNotEmpty && cancion.title.length < 17)
-            ? cancion.title
-            : "${cancion.title.substring(0, 17)}...";
-    final String nombreArtista =
-        (cancion.author.isNotEmpty && cancion.author.length < 20)
-            ? cancion.author
-            : "${cancion.author.substring(0, 20)}...";
     return GestureDetector(
       onTap: () {
         if (state != null) {
@@ -38,7 +31,7 @@ class _MusicPlayerCardState extends State<MusicPlayerCard> {
       child: Container(
         color: const Color.fromARGB(255, 2, 37, 39),
         child: Padding(
-          padding: const EdgeInsets.all(10.0),
+          padding: const EdgeInsets.all(5.0),
           child: Container(
             height: 80,
             decoration: BoxDecoration(
@@ -73,16 +66,16 @@ class _MusicPlayerCardState extends State<MusicPlayerCard> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text(
-                          nombreCancion,
+                        ScrollingText(
+                          text: cancion.title,
                           style: const TextStyle(
                             color: Color.fromARGB(255, 0, 0, 0),
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        Text(
-                          nombreArtista,
+                        ScrollingText(
+                          text: cancion.author,
                           style: const TextStyle(
                             color: Color.fromARGB(179, 0, 0, 0),
                             fontSize: 14,

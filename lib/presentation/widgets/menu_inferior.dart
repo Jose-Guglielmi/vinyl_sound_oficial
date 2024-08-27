@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:vinyl_sound_oficial/presentation/state_managener/audio_provider.dart';
 
 class MenuInferior extends StatefulWidget {
   const MenuInferior({
@@ -80,9 +82,15 @@ class MenuItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final audioProvider = Provider.of<AudioProvider>(context);
+
     return Expanded(
       child: GestureDetector(
-        onTap: () => cambiarMenuIndex(index),
+        onTap: () {
+          cambiarMenuIndex(index);
+
+          audioProvider.reproduciendo = true;
+        },
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,

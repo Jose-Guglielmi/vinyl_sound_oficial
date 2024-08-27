@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:vinyl_sound_oficial/presentation/domain/entitis/artist.dart';
 import 'package:vinyl_sound_oficial/presentation/state_managener/audio_provider.dart';
+import 'package:vinyl_sound_oficial/presentation/widgets/scrolling_text.dart';
 
 class ArtistasView extends StatelessWidget {
   const ArtistasView({
@@ -20,28 +21,35 @@ class ArtistasView extends StatelessWidget {
       itemBuilder: (context, index) {
         Artist artista = listaArtistas[index];
 
-        final String nombre = (artista.title.length <= 8)
-            ? artista.title
-            : "${artista.title.substring(0, 8)}...";
         return Row(
           children: [
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Column(
-                children: [
-                  ClipOval(
-                    child: Image.network(
-                      artista.thumbnail,
-                      height: 80,
-                      width: 80,
-                      fit: BoxFit.cover,
-                    ),
+            SizedBox(
+              width: 80,
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Expanded(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      ClipOval(
+                        child: Image.network(
+                          artista.thumbnail,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(0, 6, 0, 0),
+                        child: ScrollingText(
+                          text: artista.title,
+                          style: const TextStyle(
+                            color: Color.fromARGB(255, 0, 0, 0),
+                            fontSize: 17,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(0, 6, 0, 0),
-                    child: Text(nombre),
-                  ),
-                ],
+                ),
               ),
             ),
           ],
