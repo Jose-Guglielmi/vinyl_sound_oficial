@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:vinyl_sound_oficial/presentation/state_managener/audio_provider.dart';
+import 'package:vinyl_sound_oficial/presentation/widgets/canciones_view_v2.dart';
 import 'package:vinyl_sound_oficial/presentation/widgets/search_text_field.dart';
 import 'package:vinyl_sound_oficial/presentation/widgets/sin_resultados.dart';
 
 import '../widgets/artistas_view.dart';
-import '../widgets/canciones_view.dart';
 
 class BuscadorPage extends StatelessWidget {
   const BuscadorPage({
@@ -49,7 +49,7 @@ class BuscadorPage extends StatelessWidget {
                   color: const Color(0xFFEAEFCE),
                 ),
                 child: (audioProvider.listaCanciones.isNotEmpty)
-                    ? const Expanded(child: ArtistasView())
+                    ? const ArtistasView()
                     : const SinResultados(),
               ),
             ),
@@ -67,7 +67,7 @@ class BuscadorPage extends StatelessWidget {
                     color: const Color(0xFFEAEFCE),
                   ),
                   child: (audioProvider.listaCanciones.isNotEmpty)
-                      ? const CancionesView()
+                      ? const CancionesViewV2()
                       : const SinResultados(),
                 ),
               ),

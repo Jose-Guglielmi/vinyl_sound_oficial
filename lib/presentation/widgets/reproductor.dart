@@ -6,6 +6,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vinyl_sound_oficial/main.dart';
 import 'package:vinyl_sound_oficial/presentation/domain/entitis/cancion.dart';
 import 'package:vinyl_sound_oficial/presentation/state_managener/audio_provider.dart';
+import 'package:vinyl_sound_oficial/presentation/widgets/canciones_view_cola.dart';
+import 'package:vinyl_sound_oficial/presentation/widgets/scrolling_text.dart';
 
 class Reproductor extends StatefulWidget {
   const Reproductor({
@@ -66,6 +68,7 @@ class _RepState extends State<Rep> {
         _totalDuration.value = duration ?? Duration.zero;
       }
     });
+    setState(() {});
   }
 
   @override
@@ -87,6 +90,7 @@ class _RepState extends State<Rep> {
 
   @override
   Widget build(BuildContext context) {
+    bool centro = false;
     final HomeState? state = context.findAncestorStateOfType<HomeState>();
     final audioProvider = Provider.of<AudioProvider>(context);
     return PopScope(
@@ -95,6 +99,7 @@ class _RepState extends State<Rep> {
         if (state != null) {
           state.cambiarSelectedIndex(0);
           audioProvider.reproduciendo = true;
+          setState(() {});
         }
       },
       child: Scaffold(
@@ -123,8 +128,9 @@ class _RepState extends State<Rep> {
               const SizedBox(
                 height: 10,
               ),
-              Text(
-                widget.audioProvider.cancionSeleccionado.title,
+              ScrollingText(
+                centerWhenNoScroll: true,
+                text: widget.audioProvider.cancionSeleccionado.title,
                 style: const TextStyle(fontSize: 40, color: Colors.white),
               ),
               Text(
@@ -136,8 +142,8 @@ class _RepState extends State<Rep> {
               ),
               Container(
                 padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
-                width: 250,
-                height: 250,
+                width: 100,
+                height: 100,
                 decoration: BoxDecoration(
                   boxShadow: [
                     BoxShadow(
@@ -239,7 +245,7 @@ class _RepState extends State<Rep> {
               Padding(
                 padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     IconButton(
                       icon: const Icon(Icons.playlist_add),
@@ -259,7 +265,11 @@ class _RepState extends State<Rep> {
                           icon: const Icon(Icons.skip_previous),
                           color: Colors.white,
                           iconSize: 45,
-                          onPressed: () {},
+                          onPressed: () {
+                            setState(() {
+                              audioProvider.playPrevious();
+                            });
+                          },
                         ),
                         IconButton(
                           icon: Icon(widget.audioProvider.player.playing
@@ -290,10 +300,25 @@ class _RepState extends State<Rep> {
                           color: Colors.white,
                           iconSize: 45,
                           onPressed: () {
-                            widget.audioProvider.playNext();
+                            setState(() {
+                              widget.audioProvider.playNext();
+                            });
                           },
                         ),
                       ],
+                    ),
+                    IconButton(
+                      icon: Icon(
+                        Icons.refresh_outlined,
+                        color: (widget.audioProvider.cancionBucle)
+                            ? Colors.pink
+                            : Colors.white,
+                      ),
+                      color: Colors.white,
+                      iconSize: 45,
+                      onPressed: () {
+                        widget.audioProvider.bucleCancion();
+                      },
                     ),
                     IconButton(
                       icon: const Icon(Icons.favorite),
@@ -374,13 +399,7 @@ class _RepState extends State<Rep> {
                 ),
               ),
               (lista.isNotEmpty)
-                  ? const Padding(
-                      padding: EdgeInsets.all(10.0),
-                      child: Text(
-                        "hay Canciones en la cola",
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    )
+                  ? const Expanded(child: CancionesViewCola())
                   : const Padding(
                       padding: EdgeInsets.all(10.0),
                       child: Text(

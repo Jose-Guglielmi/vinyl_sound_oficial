@@ -52,10 +52,14 @@ class CancionesList {
 
   // Método estático para crear una lista de canciones a partir de un JSON
   static List<Cancion> fromJson(Map<String, dynamic> json) {
-    var resultList = json['result'] as List;
-    List<Cancion> videoList =
-        resultList.map((i) => Cancion.fromJson(i)).toList();
-    return videoList;
+    try {
+      var resultList = json['result'] as List;
+      List<Cancion> videoList =
+          resultList.map((i) => Cancion.fromJson(i)).toList();
+      return videoList;
+    } catch (e) {
+      return List.empty();
+    }
   }
 
   // Método para convertir la lista de canciones a un JSON

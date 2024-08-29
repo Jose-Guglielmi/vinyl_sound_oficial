@@ -45,10 +45,13 @@ class ArtistList {
 
   // Método estático para crear una lista de artistas a partir de un JSON
   static List<Artist> fromJson(Map<String, dynamic> json) {
-    var list = json['result'] as List;
-    List<Artist> artistList = list.map((i) => Artist.fromJson(i)).toList();
-
-    return artistList;
+    try {
+      var list = json['result'] as List;
+      List<Artist> artistList = list.map((i) => Artist.fromJson(i)).toList();
+      return artistList;
+    } catch (e) {
+      return List.empty();
+    }
   }
 
   // Método para convertir la lista de artistas a un JSON

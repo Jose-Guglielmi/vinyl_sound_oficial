@@ -88,8 +88,9 @@ class MenuItem extends StatelessWidget {
       child: GestureDetector(
         onTap: () {
           cambiarMenuIndex(index);
-
-          audioProvider.reproduciendo = true;
+          if (audioProvider.player.playing) {
+            audioProvider.reproduciendo = true;
+          }
         },
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,

@@ -17,7 +17,12 @@ class AudioProvider extends ChangeNotifier {
     obtenerListaMeGusta();
     player.playerStateStream.listen((state) {
       if (state.processingState == ProcessingState.completed) {
-        playNext();
+        if (cancionBucle) {
+          player.seek(Duration.zero);
+          play();
+        } else {
+          playNext();
+        }
       }
     });
   }
@@ -49,6 +54,14 @@ class AudioProvider extends ChangeNotifier {
         CancionesList(canciones: listaCancionesMeGustas);
     await prefs.setString('cancionesMeGusta', listCanciones.toJson());
   }
+
+  void bucleCancion() {
+    cancionBucle = !cancionBucle;
+    notifyListeners();
+  }
+
+  //reproducir en bucle
+  bool cancionBucle = false;
 
   //Lista de artistas
   List<Artist> listaArtistas = [];
@@ -308,5 +321,18 @@ class AudioProvider extends ChangeNotifier {
       _playCurrent();
       notifyListeners();
     }
+  }
+
+  void playPrevious() {
+    if (_currentIndex > 0) {
+      _currentIndex--;
+      cancionSeleccionado = listaCancionesPorReproducir[_currentIndex];
+      _playCurrent();
+      notifyListeners();
+    }
+  }
+
+  void actualizar() {
+    notifyListeners();
   }
 }

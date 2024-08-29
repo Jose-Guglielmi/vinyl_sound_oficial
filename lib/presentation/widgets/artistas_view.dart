@@ -27,28 +27,26 @@ class ArtistasView extends StatelessWidget {
               width: 80,
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: Expanded(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      ClipOval(
-                        child: Image.network(
-                          artista.thumbnail,
-                          fit: BoxFit.cover,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ClipOval(
+                      child: Image.network(
+                        artista.thumbnail,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(0, 6, 0, 0),
+                      child: ScrollingText(
+                        text: artista.title,
+                        style: const TextStyle(
+                          color: Color.fromARGB(255, 0, 0, 0),
+                          fontSize: 17,
                         ),
                       ),
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(0, 6, 0, 0),
-                        child: ScrollingText(
-                          text: artista.title,
-                          style: const TextStyle(
-                            color: Color.fromARGB(255, 0, 0, 0),
-                            fontSize: 17,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             ),
