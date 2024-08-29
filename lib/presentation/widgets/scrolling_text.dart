@@ -6,11 +6,11 @@ class ScrollingText extends StatefulWidget {
   final bool centerWhenNoScroll;
 
   const ScrollingText({
-    Key? key,
+    super.key,
     required this.text,
     required this.style,
     this.centerWhenNoScroll = false,
-  }) : super(key: key);
+  });
 
   @override
   ScrollingTextState createState() => ScrollingTextState();
@@ -74,10 +74,10 @@ class ScrollingTextState extends State<ScrollingText>
       builder: (context, constraints) {
         return SizedBox(
           width: constraints.maxWidth,
-          height: widget.style.fontSize! + 10,
-          child: _hasOverflow
-              ? _buildScrollingText()
-              : _buildStaticText(),
+          height: (widget.style.fontSize != null)
+              ? widget.style.fontSize! + 10
+              : 30,
+          child: _hasOverflow ? _buildScrollingText() : _buildStaticText(),
         );
       },
     );
@@ -85,11 +85,13 @@ class ScrollingTextState extends State<ScrollingText>
 
   Widget _buildStaticText() {
     return Align(
-      alignment: widget.centerWhenNoScroll ? Alignment.center : Alignment.centerLeft,
+      alignment:
+          widget.centerWhenNoScroll ? Alignment.center : Alignment.centerLeft,
       child: Text(
         widget.text,
         style: widget.style,
-        textAlign: widget.centerWhenNoScroll ? TextAlign.center : TextAlign.left,
+        textAlign:
+            widget.centerWhenNoScroll ? TextAlign.center : TextAlign.left,
         overflow: TextOverflow.ellipsis,
         maxLines: 1,
       ),
