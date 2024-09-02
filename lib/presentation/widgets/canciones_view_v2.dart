@@ -41,12 +41,10 @@ class CancionesViewV2 extends StatelessWidget {
           ),
           child: GestureDetector(
             onTap: () {
-              audioProvider.cancionSeleccionado = Cancion();
-              audioProvider.cancionSeleccionado = cancion;
-              audioProvider.actualizarUrl(cancion.videoId);
+              audioProvider.empezarEscucharCancion(cancion);
               if (state != null) {
                 state.cambiarSelectedIndex(3);
-                audioProvider.reproduciendo = false;
+                audioProvider.miniReproduciendo = false;
               }
             },
             child: Padding(
@@ -121,7 +119,7 @@ class CancionesViewV2 extends StatelessWidget {
   // Función que se llama cuando se desliza hacia la derecha
   void onSwipeRight(
       BuildContext context, Cancion cancion, AudioProvider audioProvider) {
-    audioProvider.addToQueue(cancion);
+    audioProvider.agregarCancionDespuesDeActual(cancion, false);
 
     // Aquí puedes implementar la funcionalidad que deseas
     ScaffoldMessenger.of(context).clearSnackBars();

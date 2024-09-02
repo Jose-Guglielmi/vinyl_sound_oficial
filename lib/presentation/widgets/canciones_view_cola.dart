@@ -28,7 +28,7 @@ class CancionesViewCola extends StatelessWidget {
           confirmDismiss: (direction) async {
             if (direction == DismissDirection.endToStart) {
               // Llama a la función que deseas ejecutar cuando se deslice
-              onSwipeRight(context, cancion);
+              onSwipeRight(context, cancion, audioProvider);
               return false; // Devuelve false para que el item no se elimine de la lista
             }
             return false;
@@ -41,85 +41,89 @@ class CancionesViewCola extends StatelessWidget {
           ),
           child: GestureDetector(
             onTap: () {
-              audioProvider.cancionSeleccionado = Cancion();
-              audioProvider.cancionSeleccionado = cancion;
-              audioProvider.actualizarUrl(cancion.videoId);
+              audioProvider.empezarEscucharCancion(cancion);
               if (state != null) {
                 state.cambiarSelectedIndex(3);
-                audioProvider.reproduciendo = false;
               }
             },
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Row(
-                children: [
-                  ClipOval(
-                    child: Image.network(
-                      cancion.thumbnail,
-                      height: 70,
-                      width: 70,
-                      fit: BoxFit.cover,
+            child: Container(
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10.0),
+                  color: (audioProvider.estaCancionEnReproduccion(cancion)
+                      ? const Color.fromARGB(60, 255, 255, 255)
+                      : Colors.transparent)),
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  children: [
+                    ClipOval(
+                      child: Image.network(
+                        cancion.thumbnail,
+                        height: 70,
+                        width: 70,
+                        fit: BoxFit.cover,
+                      ),
                     ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: SizedBox(
-                      width: 150,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          ScrollingText(
-                            text: cancion.title,
-                            style: const TextStyle(
-                              color: Color.fromARGB(255, 255, 255, 255),
-                              fontSize: 17,
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: SizedBox(
+                        width: 150,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            ScrollingText(
+                              text: cancion.title,
+                              style: const TextStyle(
+                                color: Color.fromARGB(255, 255, 255, 255),
+                                fontSize: 17,
+                              ),
                             ),
-                          ),
-                          ScrollingText(
-                            text: cancion.author,
+                            ScrollingText(
+                              text: cancion.author,
+                              style: const TextStyle(
+                                  color: Color.fromARGB(255, 173, 173, 173),
+                                  fontSize: 17),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const Spacer(),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Column(
+                        children: [
+                          Text(
+                            cancion.duration,
                             style: const TextStyle(
-                                color: Color.fromARGB(255, 173, 173, 173),
-                                fontSize: 17),
+                                color: Color.fromARGB(255, 255, 252, 252),
+                                fontSize: 15),
                           ),
+                          (cancion.isExplicit)
+                              ? const Icon(
+                                  Icons.explicit,
+                                  color: Colors.white,
+                                )
+                              : Container(),
                         ],
                       ),
                     ),
-                  ),
-                  const Spacer(),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Column(
-                      children: [
-                        Text(
-                          cancion.duration,
-                          style: const TextStyle(
-                              color: Color.fromARGB(255, 255, 252, 252),
-                              fontSize: 15),
-                        ),
-                        (cancion.isExplicit)
-                            ? const Icon(
-                                Icons.explicit,
-                                color: Colors.white,
-                              )
-                            : Container(),
-                      ],
+                    IconButton(
+                      onPressed: () {},
+                      icon: const Icon(
+                        Icons.playlist_add,
+                        color: Colors.white,
+                      ),
                     ),
-                  ),
-                  IconButton(
-                    onPressed: () {},
-                    icon: const Icon(
-                      Icons.playlist_add,
-                      color: Colors.white,
-                    ),
-                  ),
-                  IconButton(
-                    onPressed: () {},
-                    icon: const Icon(
-                      Icons.favorite,
-                      color: Colors.white,
-                    ),
-                  )
-                ],
+                    IconButton(
+                      onPressed: () {},
+                      icon: const Icon(
+                        Icons.favorite,
+                        color: Colors.white,
+                      ),
+                    )
+                  ],
+                ),
               ),
             ),
           ),
@@ -129,7 +133,9 @@ class CancionesViewCola extends StatelessWidget {
   }
 
   // Función que se llama cuando se desliza hacia la derecha
-  void onSwipeRight(BuildContext context, Cancion cancion) {
+  void onSwipeRight(
+      BuildContext context, Cancion cancion, AudioProvider audioProvider) {
+    audioProvider.eliminarCancionDeListaPorReproducir(cancion);
     // Aquí puedes implementar la funcionalidad que deseas
     ScaffoldMessenger.of(context).clearSnackBars();
     ScaffoldMessenger.of(context).showSnackBar(

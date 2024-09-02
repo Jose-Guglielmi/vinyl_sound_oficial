@@ -73,7 +73,7 @@ class HomeState extends State<Home> {
             Expanded(
               child: cambiarIndexSelect(selectIndex),
             ),
-            (audioProvider.reproduciendo)
+            (audioProvider.miniReproduciendo)
                 ? const MusicPlayerCard()
                 : Container(),
             MenuInferior(

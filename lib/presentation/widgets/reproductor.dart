@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+//import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vinyl_sound_oficial/main.dart';
 import 'package:vinyl_sound_oficial/presentation/domain/entitis/cancion.dart';
 import 'package:vinyl_sound_oficial/presentation/state_managener/audio_provider.dart';
@@ -90,15 +90,14 @@ class _RepState extends State<Rep> {
 
   @override
   Widget build(BuildContext context) {
-    bool centro = false;
     final HomeState? state = context.findAncestorStateOfType<HomeState>();
     final audioProvider = Provider.of<AudioProvider>(context);
     return PopScope(
       canPop: false,
-      onPopInvoked: (didPop) {
+      onPopInvokedWithResult: (didPop, result) {
         if (state != null) {
           state.cambiarSelectedIndex(0);
-          audioProvider.reproduciendo = true;
+          audioProvider.miniReproduciendo = true;
           setState(() {});
         }
       },
@@ -119,7 +118,7 @@ class _RepState extends State<Rep> {
                     onPressed: () {
                       if (state != null) {
                         state.cambiarSelectedIndex(0);
-                        audioProvider.reproduciendo = true;
+                        audioProvider.miniReproduciendo = true;
                       }
                     },
                   )
@@ -181,7 +180,7 @@ class _RepState extends State<Rep> {
                         Text(
                           lyrics[1], // Letra actual
                           style: const TextStyle(
-                              fontSize: 25, color: Colors.white),
+                              fontSize: 30, color: Colors.white),
                           textAlign: TextAlign.center,
                         ),
                         const SizedBox(height: 10),
@@ -380,16 +379,14 @@ class _RepState extends State<Rep> {
       context: context,
       builder: (BuildContext context) {
         return Container(
-          decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20),
-              color: const Color(0xff022527)),
+          decoration: const BoxDecoration(color: Color(0xff022527)),
           width: double.infinity,
           height: MediaQuery.of(context).size.height /
               2, // La mitad de la altura de la pantalla
           child: Column(
             children: [
               Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: const EdgeInsets.all(10.0),
                 child: Container(
                   height: 6,
                   width: 50,

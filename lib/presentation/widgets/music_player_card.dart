@@ -25,7 +25,7 @@ class _MusicPlayerCardState extends State<MusicPlayerCard> {
       onTap: () {
         if (state != null) {
           state.cambiarSelectedIndex(3);
-          audioProvider.reproduciendo = false;
+          audioProvider.miniReproduciendo = false;
         }
       },
       child: Container(

@@ -13,16 +13,23 @@ import 'package:http/http.dart' as http;
 
 //Clase que se encarga del manejo de los datos de las apis, para mostrarlo a al usuario.
 class AudioProvider extends ChangeNotifier {
+  bool _isHandlingCompletion = false;
   AudioProvider() {
     obtenerListaMeGusta();
     player.playerStateStream.listen((state) {
       if (state.processingState == ProcessingState.completed) {
+        if (_isHandlingCompletion) return;
+        _isHandlingCompletion = true;
         if (cancionBucle) {
           player.seek(Duration.zero);
           play();
         } else {
           playNext();
         }
+        // Restablecer el flag después de un breve delay para permitir futuras ejecuciones
+        Future.delayed(const Duration(milliseconds: 500), () {
+          _isHandlingCompletion = false;
+        });
       }
     });
   }
@@ -92,7 +99,7 @@ class AudioProvider extends ChangeNotifier {
   bool isLoading = false;
 
   //bool que nos indica si se esta reproduciendo o no
-  bool reproduciendo = false;
+  bool miniReproduciendo = false;
 
   LyricSynchronizer? lyricSynchronizer;
   ValueNotifier<List<String>> currentLyrics = ValueNotifier(['', '', '']);
@@ -272,13 +279,11 @@ class AudioProvider extends ChangeNotifier {
       }
 
       play();
-
       isLoading = false;
       notifyListeners();
     } catch (e) {
       isLoading = false;
       notifyListeners();
-      rethrow;
     }
   }
 
@@ -291,7 +296,6 @@ class AudioProvider extends ChangeNotifier {
   //funcion que se encarga de detener el audio
   void stop() {
     player.stop();
-    reproduciendo = false;
     notifyListeners();
   }
 
@@ -303,25 +307,30 @@ class AudioProvider extends ChangeNotifier {
 
   int _currentIndex = 0;
 
-  void addToQueue(Cancion cancion) {
-    listaCancionesPorReproducir.add(cancion);
-    notifyListeners();
-  }
-
   void _playCurrent() async {
     if (_currentIndex < listaCancionesPorReproducir.length) {
-      actualizarUrl(listaCancionesPorReproducir[_currentIndex].videoId);
+      empezarEscucharCancion(cancionSeleccionado);
     }
   }
 
+  bool _isPlayingNext = false;
+
   void playNext() {
+    if (_isPlayingNext) {
+      return;
+    } // Salir si ya se está reproduciendo la siguiente canción
+    _isPlayingNext = true;
+
     if (_currentIndex < listaCancionesPorReproducir.length - 1) {
       _currentIndex++;
       cancionSeleccionado = listaCancionesPorReproducir[_currentIndex];
       _playCurrent();
       notifyListeners();
     }
-  }
+
+    // Restablecer el flag
+    _isPlayingNext = false;
+  } 
 
   void playPrevious() {
     if (_currentIndex > 0) {
@@ -333,6 +342,107 @@ class AudioProvider extends ChangeNotifier {
   }
 
   void actualizar() {
+    notifyListeners();
+  }
+
+  void eliminarCancionDeListaPorReproducir(Cancion cancion) {
+    // Busca la canción en la lista y la elimina si existe
+    if (listaCancionesPorReproducir.contains(cancion)) {
+      listaCancionesPorReproducir.remove(cancion);
+      // Si la canción eliminada era la que se estaba reproduciendo, actualiza la reproducción
+      if (cancionSeleccionado == cancion) {
+        if (_currentIndex >= listaCancionesPorReproducir.length) {
+          _currentIndex = 0; // Resetea el índice si estaba en la última canción
+        }
+        if (listaCancionesPorReproducir.isNotEmpty) {
+          cancionSeleccionado = listaCancionesPorReproducir[_currentIndex];
+          _playCurrent();
+        } else {
+          stop(); // Detiene la reproducción si no quedan más canciones
+        }
+      }
+      notifyListeners();
+    }
+  }
+
+  void agregarCancionDespuesDeActual(Cancion nuevaCancion, bool reproduccion) {
+    // Si la lista está vacía, simplemente añade la canción y comienza a reproducirla
+    if (listaCancionesPorReproducir.isEmpty) {
+      listaCancionesPorReproducir.add(nuevaCancion);
+      cancionSeleccionado = nuevaCancion;
+      _currentIndex = 0;
+      if (reproduccion) {
+        _playCurrent();
+      }
+    } else {
+      // Inserta la nueva canción después de la canción actualmente en reproducción
+      int indexActual = _currentIndex;
+      listaCancionesPorReproducir.insert(indexActual + 1, nuevaCancion);
+    }
+
+    // Notifica a los listeners para actualizar la UI
+    notifyListeners();
+  }
+
+  bool estaCancionEnReproduccion(Cancion cancion) {
+    // Verifica si la canción está en la lista de canciones por reproducir
+    if (listaCancionesPorReproducir.contains(cancion)) {
+      // Verifica si la canción en reproducción actualmente es la misma que la proporcionada
+      return player.playing && cancionSeleccionado == cancion;
+    }
+    // Si la canción no está en la lista, retorna false
+    return false;
+  }
+
+  Future<void> empezarEscucharCancion(Cancion cancion) async {
+    // Encuentra el índice de la canción en la lista de canciones por reproducir
+    int index = listaCancionesPorReproducir.indexOf(cancion);
+
+    // Si la canción no está en la lista
+    if (index == -1) {
+      if (listaCancionesPorReproducir.isEmpty) {
+        cancionSeleccionado = Cancion();
+        cancionSeleccionado = cancion;
+        // La lista está vacía, agrega la canción y empieza a reproducirla
+        listaCancionesPorReproducir.add(cancion);
+        _currentIndex = 0;
+        await actualizarUrl(
+            cancion.videoId); // Asegúrate de que cancion tenga el videoId
+        play();
+      } else {
+        if (!listaCancionesPorReproducir.contains(cancion)) {
+          cancionSeleccionado = Cancion();
+          cancionSeleccionado = cancion;
+          // La lista no está vacía, agrega la canción antes del elemento actualmente seleccionado
+          int currentIndex = _currentIndex;
+          // Asegúrate de que el índice sea válido
+          if (currentIndex > listaCancionesPorReproducir.length - 1) {
+            currentIndex = listaCancionesPorReproducir.length - 1;
+          }
+          listaCancionesPorReproducir.insert(currentIndex, cancion);
+          _currentIndex = currentIndex;
+          await actualizarUrl(
+              cancion.videoId); // Asegúrate de que cancion tenga el videoId
+          play();
+        } else {
+          cancionSeleccionado = Cancion();
+          cancionSeleccionado = cancion;
+          await actualizarUrl(
+              cancion.videoId); // Asegúrate de que cancion tenga el videoId
+          play();
+        }
+      }
+    } else {
+      cancionSeleccionado = Cancion();
+      cancionSeleccionado = cancion;
+      // La canción ya está en la lista, actualiza el índice y empieza a reproducir
+      _currentIndex = index;
+      await actualizarUrl(
+          cancion.videoId); // Asegúrate de que cancion tenga el videoId
+      play();
+    }
+
+    // Notifica a los listeners para actualizar la UI
     notifyListeners();
   }
 }

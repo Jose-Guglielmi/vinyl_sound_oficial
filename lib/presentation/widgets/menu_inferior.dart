@@ -89,7 +89,7 @@ class MenuItem extends StatelessWidget {
         onTap: () {
           cambiarMenuIndex(index);
           if (audioProvider.player.playing) {
-            audioProvider.reproduciendo = true;
+            audioProvider.miniReproduciendo = true;
           }
         },
         child: Column(
