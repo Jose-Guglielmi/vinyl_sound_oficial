@@ -5,10 +5,13 @@ import 'package:vinyl_sound_oficial/presentation/domain/entitis/cancion.dart';
 import 'package:vinyl_sound_oficial/presentation/state_managener/audio_provider.dart';
 import 'package:vinyl_sound_oficial/presentation/widgets/scrolling_text.dart';
 
-class CancionesViewV2 extends StatelessWidget {
-  const CancionesViewV2({
+class CancionesViewPlaylists extends StatelessWidget {
+  const CancionesViewPlaylists({
     super.key,
+    required this.indexPlay,
   });
+
+  final int indexPlay;
 
   @override
   Widget build(BuildContext context) {
@@ -17,9 +20,10 @@ class CancionesViewV2 extends StatelessWidget {
     final HomeState? state = context.findAncestorStateOfType<HomeState>();
 
     return ListView.builder(
-      itemCount: audioProvider.listaCanciones.length,
+      itemCount: audioProvider.listasDePlaylists[indexPlay].canciones.length,
       itemBuilder: (context, index) {
-        Cancion cancion = audioProvider.listaCanciones[index];
+        Cancion cancion =
+            audioProvider.listasDePlaylists[indexPlay].canciones[index];
 
         return Dismissible(
           key: Key(cancion.videoId),
@@ -35,9 +39,9 @@ class CancionesViewV2 extends StatelessWidget {
           },
           background: Container(
             alignment: Alignment.centerRight,
-            color: Colors.green,
+            color: const Color.fromARGB(255, 127, 1, 74),
             padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: const Icon(Icons.check, color: Colors.white),
+            child: const Icon(Icons.delete_outline, color: Colors.white),
           ),
           child: GestureDetector(
             onTap: () {
@@ -69,14 +73,15 @@ class CancionesViewV2 extends StatelessWidget {
                           ScrollingText(
                             text: cancion.title,
                             style: const TextStyle(
-                              color: Color.fromARGB(255, 0, 0, 0),
+                              color: Color.fromARGB(255, 255, 255, 255),
                               fontSize: 17,
                             ),
                           ),
                           ScrollingText(
                             text: cancion.author,
                             style: const TextStyle(
-                                color: Colors.black, fontSize: 17),
+                                color: Color.fromARGB(255, 196, 196, 196),
+                                fontSize: 17),
                           ),
                         ],
                       ),
@@ -90,25 +95,25 @@ class CancionesViewV2 extends StatelessWidget {
                         Text(
                           cancion.duration,
                           style: const TextStyle(
-                              color: Color.fromARGB(255, 100, 100, 100),
+                              color: Color.fromARGB(255, 255, 247, 247),
                               fontSize: 15),
                         ),
                         (cancion.isExplicit)
-                            ? const Icon(Icons.explicit)
+                            ? const Icon(
+                                Icons.explicit,
+                                color: Color.fromARGB(255, 255, 255, 255),
+                              )
                             : Container(),
                       ],
                     ),
                   ),
                   IconButton(
                     onPressed: () {},
-                    icon: const Icon(Icons.playlist_add),
+                    icon: const Icon(
+                      Icons.playlist_add,
+                      color: Colors.white,
+                    ),
                   ),
-                  IconButton(
-                    onPressed: () {
-                      buttonMeGusta(context, cancion, audioProvider);
-                    },
-                    icon: const Icon(Icons.favorite),
-                  )
                 ],
               ),
             ),
@@ -121,28 +126,13 @@ class CancionesViewV2 extends StatelessWidget {
   // Función que se llama cuando se desliza hacia la derecha
   void onSwipeRight(
       BuildContext context, Cancion cancion, AudioProvider audioProvider) {
-    audioProvider.agregarCancionDespuesDeActual(cancion, false);
+    audioProvider.borrarCancionDePlaylist("Favoritos", cancion.videoId);
 
     // Aquí puedes implementar la funcionalidad que deseas
     ScaffoldMessenger.of(context).clearSnackBars();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('${cancion.title} Se agrego a la cola de reproduccion'),
-        showCloseIcon: true,
-      ),
-    );
-    // Puedes agregar otras acciones aquí
-  }
-
-  void buttonMeGusta(
-      BuildContext context, Cancion cancion, AudioProvider audioProvider) {
-    audioProvider.agregarCancionAPlaylist("Favoritos", cancion);
-
-    // Aquí puedes implementar la funcionalidad que deseas
-    ScaffoldMessenger.of(context).clearSnackBars();
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('${cancion.title} Se agrego a Me gustas'),
         showCloseIcon: true,
       ),
     );

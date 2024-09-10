@@ -116,7 +116,9 @@ class CancionesViewCola extends StatelessWidget {
                       ),
                     ),
                     IconButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        buttonMeGusta(context, cancion, audioProvider);
+                      },
                       icon: const Icon(
                         Icons.favorite,
                         color: Colors.white,
@@ -130,6 +132,21 @@ class CancionesViewCola extends StatelessWidget {
         );
       },
     );
+  }
+
+  void buttonMeGusta(
+      BuildContext context, Cancion cancion, AudioProvider audioProvider) {
+    audioProvider.agregarCancionAPlaylist("Favoritos", cancion);
+
+    // Aquí puedes implementar la funcionalidad que deseas
+    ScaffoldMessenger.of(context).clearSnackBars();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('${cancion.title} Se agrego a Me gustas'),
+        showCloseIcon: true,
+      ),
+    );
+    // Puedes agregar otras acciones aquí
   }
 
   // Función que se llama cuando se desliza hacia la derecha

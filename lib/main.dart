@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:vinyl_sound_oficial/presentation/screens/biblioteca.dart';
 import 'package:vinyl_sound_oficial/presentation/screens/favorites_page.dart';
+import 'package:vinyl_sound_oficial/presentation/screens/playlist_screen.dart';
 import 'package:vinyl_sound_oficial/presentation/state_managener/audio_provider.dart';
 import 'package:vinyl_sound_oficial/presentation/widgets/reproductor.dart';
 
@@ -41,10 +42,12 @@ class Home extends StatefulWidget {
 
 class HomeState extends State<Home> {
   int selectIndex = 0;
+  int indexList = 0;
 
-  void cambiarSelectedIndex(int index) {
+  void cambiarSelectedIndex(int index, {int indexListPlay = 0}) {
     setState(() {
       selectIndex = index;
+      indexList = indexListPlay;
     });
   }
 
@@ -58,6 +61,12 @@ class HomeState extends State<Home> {
         return const Biblioteca();
       case 3:
         return const Reproductor();
+      case 4:
+        return PlaylistScreen(
+          index: indexList,
+          favorite: false,
+        );
+
       default:
         return const BuscadorPage();
     }

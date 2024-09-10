@@ -6,6 +6,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vinyl_sound_oficial/presentation/domain/entitis/album.dart';
 import 'package:vinyl_sound_oficial/presentation/domain/entitis/artist.dart';
 import 'package:vinyl_sound_oficial/presentation/domain/entitis/cancion.dart';
+import 'package:vinyl_sound_oficial/presentation/domain/entitis/playlist.dart';
+import 'package:vinyl_sound_oficial/presentation/screens/biblioteca.dart';
 import 'package:vinyl_sound_oficial/presentation/widgets/reproductor.dart';
 import 'dart:convert';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
@@ -35,31 +37,7 @@ class AudioProvider extends ChangeNotifier {
   }
 
   obtenerListaMeGusta() async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    //obtengo los datos guardados
-    final String? action = prefs.getString('cancionesMeGusta');
-
-    if (action != null) {
-      final Map<String, dynamic> jsonData = jsonDecode(action);
-
-      listaCancionesMeGustas = CancionesList.fromJson(jsonData);
-
-      for (Cancion cancion in listaCancionesMeGustas) {
-        conjuntoCanciones.add(cancion);
-      }
-    }
-  }
-
-  borrarCancionDeMeGusta(Cancion cancion) async {
-    listaCancionesMeGustas.remove(cancion);
-    conjuntoCanciones.remove(cancion);
-    listaCancionesPorReproducir.remove(cancion);
-    notifyListeners();
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-
-    CancionesList listCanciones =
-        CancionesList(canciones: listaCancionesMeGustas);
-    await prefs.setString('cancionesMeGusta', listCanciones.toJson());
+    listasDePlaylists = await obtenerPlaylists();
   }
 
   void bucleCancion() {
@@ -110,12 +88,6 @@ class AudioProvider extends ChangeNotifier {
     lyricSynchronizer?.dispose();
     currentLyrics.dispose();
     super.dispose();
-  }
-
-  void agregarCancion(Cancion cancion) {
-    if (conjuntoCanciones.add(cancion)) {
-      listaCancionesMeGustas.add(cancion);
-    } else {}
   }
 
   //Recibe el id del video y devuelve un link del audio del video.
@@ -296,6 +268,7 @@ class AudioProvider extends ChangeNotifier {
   //funcion que se encarga de detener el audio
   void stop() {
     player.stop();
+    miniReproduciendo = false;
     notifyListeners();
   }
 
@@ -330,7 +303,7 @@ class AudioProvider extends ChangeNotifier {
 
     // Restablecer el flag
     _isPlayingNext = false;
-  } 
+  }
 
   void playPrevious() {
     if (_currentIndex > 0) {
@@ -444,5 +417,114 @@ class AudioProvider extends ChangeNotifier {
 
     // Notifica a los listeners para actualizar la UI
     notifyListeners();
+  }
+
+  //Parte para de la lista de reproduccion
+  List<PlaylistMyApp> listasDePlaylists = [];
+
+  Future<void> crearPlaylist(String nombrePlaylist) async {
+    List<Cancion> canciones = [];
+    listasDePlaylists
+        .add(PlaylistMyApp(nombre: nombrePlaylist, canciones: canciones));
+
+    guardarPlaylistsEnPreferencias(listasDePlaylists);
+  }
+
+  Future<List<PlaylistMyApp>> obtenerPlaylists() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    // Recupera la lista actual de playlists guardadas
+    String? playlistsJson = prefs.getString('playlists');
+    List<PlaylistMyApp> playlists = [];
+
+    if (playlistsJson != null) {
+      // Convierte el JSON de playlists a una lista de objetos Playlist
+      playlists = PlaylistsList.fromJson(jsonDecode(playlistsJson)).playlists;
+    }
+
+    //Verifica si la playlist de "Favoritos" ya existe
+    bool favoritosExiste =
+        playlists.any((playlist) => playlist.nombre == 'Favoritos');
+
+    if (!favoritosExiste) {
+      // Si no existe, la crea y la agrega a la lista
+      PlaylistMyApp favoritos =
+          PlaylistMyApp(nombre: 'Favoritos', canciones: []);
+      playlists.add(favoritos);
+
+      // Guarda la lista actualizada en SharedPreferences
+      await guardarPlaylistsEnPreferencias(playlists);
+    }
+
+    return playlists;
+  }
+
+  Future<void> guardarPlaylistsEnPreferencias(
+      List<PlaylistMyApp> playlists) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    // Convierte la lista de playlists a JSON y la guarda en SharedPreferences
+    String playlistsJson = PlaylistsList(playlists: playlists).toJson();
+    await prefs.setString('playlists', playlistsJson);
+    notifyListeners();
+  }
+
+  Future<void> borrarPlaylist(String nombrePlaylist) async {
+    // Filtra para eliminar la playlist específica
+    listasDePlaylists
+        .removeWhere((playlist) => playlist.nombre == nombrePlaylist);
+
+    guardarPlaylistsEnPreferencias(listasDePlaylists);
+
+    notifyListeners();
+  }
+
+  Future<void> borrarCancionDePlaylist(
+      String nombrePlaylist, String videoIdCancion) async {
+    // Busca la playlist específica y elimina la canción
+    for (PlaylistMyApp playlist in listasDePlaylists) {
+      if (playlist.nombre == nombrePlaylist) {
+        playlist.canciones
+            .removeWhere((cancion) => cancion.videoId == videoIdCancion);
+        break;
+      }
+    }
+
+    guardarPlaylistsEnPreferencias(listasDePlaylists);
+  }
+
+  Future<void> modificarNombrePlaylist(
+      String nombrePlaylist, String nuevoNombre) async {
+    // Busca la playlist específica y elimina la canción
+    for (PlaylistMyApp playlist in listasDePlaylists) {
+      if (playlist.nombre == nombrePlaylist) {
+        playlist.nombre = nuevoNombre;
+        break;
+      }
+    }
+    guardarPlaylistsEnPreferencias(listasDePlaylists);
+  }
+
+  Future<bool> agregarCancionAPlaylist(
+      String nombrePlaylist, Cancion nuevaCancion) async {
+    // Buscar la playlist por nombre
+    final playlist = listasDePlaylists.firstWhere(
+      (playlist) => playlist.nombre == nombrePlaylist,
+      orElse: () => PlaylistMyApp(nombre: nombrePlaylist, canciones: []),
+    );
+
+    // Verificar si la canción ya existe en la playlist
+    bool cancionYaExiste = playlist.canciones
+        .any((cancion) => cancion.videoId == nuevaCancion.videoId);
+
+    if (!cancionYaExiste) {
+      // Agregar la canción si no existe
+      playlist.canciones.add(nuevaCancion);
+    } else {
+      return false; // Salir de la función si ya existe
+    }
+
+    guardarPlaylistsEnPreferencias(listasDePlaylists);
+    return true;
   }
 }
