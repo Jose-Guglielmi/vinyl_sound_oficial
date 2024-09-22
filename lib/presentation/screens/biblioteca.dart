@@ -28,7 +28,7 @@ class _BibliotecaState extends State<Biblioteca> {
             title: const Text('Nueva Playlist'),
             content: SingleChildScrollView(
               child: ListBody(
-                children: <Widget>[
+                children: [
                   TextField(
                     controller: titleController,
                     decoration: const InputDecoration(hintText: 'Título'),
@@ -37,7 +37,7 @@ class _BibliotecaState extends State<Biblioteca> {
                 ],
               ),
             ),
-            actions: <Widget>[
+            actions: [
               TextButton(
                 child: const Text('Cancelar'),
                 onPressed: () {

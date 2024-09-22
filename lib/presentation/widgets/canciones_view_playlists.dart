@@ -32,7 +32,8 @@ class CancionesViewPlaylists extends StatelessWidget {
           confirmDismiss: (direction) async {
             if (direction == DismissDirection.endToStart) {
               // Llama a la función que deseas ejecutar cuando se deslice
-              onSwipeRight(context, cancion, audioProvider);
+              _mostrarPopDePreguntaSioNo(context, cancion, audioProvider);
+
               return false; // Devuelve false para que el item no se elimine de la lista
             }
             return false;
@@ -107,17 +108,37 @@ class CancionesViewPlaylists extends StatelessWidget {
                       ],
                     ),
                   ),
-                  IconButton(
-                    onPressed: () {},
-                    icon: const Icon(
-                      Icons.playlist_add,
-                      color: Colors.white,
-                    ),
-                  ),
                 ],
               ),
             ),
           ),
+        );
+      },
+    );
+  }
+
+  Future<void> _mostrarPopDePreguntaSioNo(BuildContext context, Cancion cancion,
+      AudioProvider audioProvider) async {
+    return showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('¿Desea Borrarlo?'),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Cancelar'),
+              onPressed: () {
+                Navigator.of(context).pop(); // Cierra el diálogo sin acción
+              },
+            ),
+            TextButton(
+              child: const Text('Aceptar'),
+              onPressed: () {
+                onSwipeRight(context, cancion, audioProvider);
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
         );
       },
     );

@@ -251,11 +251,9 @@ class _RepState extends State<Rep> {
                       color: Colors.white,
                       iconSize: 45,
                       onPressed: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Se Agrego Una playList'),
-                          ),
-                        );
+                        audioProvider.mostrarPopDeGuardarCancionEnPlaylist(
+                            context, audioProvider.cancionSeleccionado);
+
                       },
                     ),
                     Row(

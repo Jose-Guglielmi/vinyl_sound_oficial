@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -7,7 +6,6 @@ import 'package:vinyl_sound_oficial/presentation/domain/entitis/album.dart';
 import 'package:vinyl_sound_oficial/presentation/domain/entitis/artist.dart';
 import 'package:vinyl_sound_oficial/presentation/domain/entitis/cancion.dart';
 import 'package:vinyl_sound_oficial/presentation/domain/entitis/playlist.dart';
-import 'package:vinyl_sound_oficial/presentation/screens/biblioteca.dart';
 import 'package:vinyl_sound_oficial/presentation/widgets/reproductor.dart';
 import 'dart:convert';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
@@ -422,6 +420,7 @@ class AudioProvider extends ChangeNotifier {
   //Parte para de la lista de reproduccion
   List<PlaylistMyApp> listasDePlaylists = [];
 
+  //Crea una playlist
   Future<void> crearPlaylist(String nombrePlaylist) async {
     List<Cancion> canciones = [];
     listasDePlaylists
@@ -430,6 +429,7 @@ class AudioProvider extends ChangeNotifier {
     guardarPlaylistsEnPreferencias(listasDePlaylists);
   }
 
+  //se encarga de obtener las playlist guardadas en local
   Future<List<PlaylistMyApp>> obtenerPlaylists() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
 
@@ -459,6 +459,7 @@ class AudioProvider extends ChangeNotifier {
     return playlists;
   }
 
+  //Guarda las playlists en el celular
   Future<void> guardarPlaylistsEnPreferencias(
       List<PlaylistMyApp> playlists) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -469,6 +470,7 @@ class AudioProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  //Borra una playlist
   Future<void> borrarPlaylist(String nombrePlaylist) async {
     // Filtra para eliminar la playlist específica
     listasDePlaylists
@@ -479,6 +481,7 @@ class AudioProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  //Borra una cancion de una playlist
   Future<void> borrarCancionDePlaylist(
       String nombrePlaylist, String videoIdCancion) async {
     // Busca la playlist específica y elimina la canción
@@ -493,6 +496,7 @@ class AudioProvider extends ChangeNotifier {
     guardarPlaylistsEnPreferencias(listasDePlaylists);
   }
 
+  //Modifico el nombre de una playlist
   Future<void> modificarNombrePlaylist(
       String nombrePlaylist, String nuevoNombre) async {
     // Busca la playlist específica y elimina la canción
@@ -505,6 +509,7 @@ class AudioProvider extends ChangeNotifier {
     guardarPlaylistsEnPreferencias(listasDePlaylists);
   }
 
+  //Agrego una cancion a la playlist
   Future<bool> agregarCancionAPlaylist(
       String nombrePlaylist, Cancion nuevaCancion) async {
     // Buscar la playlist por nombre
@@ -526,5 +531,107 @@ class AudioProvider extends ChangeNotifier {
 
     guardarPlaylistsEnPreferencias(listasDePlaylists);
     return true;
+  }
+
+// Función que agrega una playlist completa a la cola de reproducción y comienza a reproducir si no hay nada sonando
+  Future<void> agregarPlaylistACola(String nombrePlaylist) async {
+    // Buscar la playlist por nombre
+    PlaylistMyApp? playlistSeleccionada = listasDePlaylists.firstWhere(
+      (playlist) => playlist.nombre == nombrePlaylist,
+      orElse: () => PlaylistMyApp(nombre: '', canciones: []),
+    );
+
+    if (playlistSeleccionada.nombre.isNotEmpty) {
+      // Si la playlist existe y tiene canciones
+      bool estaReproduciendo =
+          player.playing; // Verifica si algo se está reproduciendo actualmente
+
+      // Agregar todas las canciones a la cola
+      for (Cancion cancion in playlistSeleccionada.canciones) {
+        agregarCancionDespuesDeActual(cancion, false);
+      }
+
+      // Si no hay nada reproduciéndose, comenzamos a reproducir la primera canción
+      if (!estaReproduciendo && playlistSeleccionada.canciones.isNotEmpty) {
+        miniReproduciendo = true;
+        await empezarEscucharCancion(listaCancionesPorReproducir.first);
+      }
+      // Notificar a los listeners para actualizar la UI
+      notifyListeners();
+    } else {}
+  }
+
+// Función que agrega una playlist completa de forma aleatoria a la cola de reproducción
+  Future<void> agregarPlaylistAColaAleatoria(String nombrePlaylist) async {
+    // Buscar la playlist por nombre
+    PlaylistMyApp? playlistSeleccionada = listasDePlaylists.firstWhere(
+      (playlist) => playlist.nombre == nombrePlaylist,
+      orElse: () => PlaylistMyApp(nombre: '', canciones: []),
+    );
+
+    if (playlistSeleccionada.nombre.isNotEmpty) {
+      // Si la playlist existe y tiene canciones
+      bool estaReproduciendo =
+          player.playing; // Verifica si algo se está reproduciendo actualmente
+
+      // Hacer una copia de las canciones de la playlist y barajarlas (shuffle)
+      List<Cancion> cancionesAleatorias =
+          List.from(playlistSeleccionada.canciones)..shuffle();
+
+      // Agregar todas las canciones barajadas a la cola
+      for (Cancion cancion in cancionesAleatorias) {
+        agregarCancionDespuesDeActual(cancion, false);
+      }
+
+      // Si no hay nada reproduciéndose, comenzamos a reproducir una canción al azar
+      if (!estaReproduciendo && cancionesAleatorias.isNotEmpty) {
+        miniReproduciendo = true;
+        await empezarEscucharCancion(listaCancionesPorReproducir.first);
+      }
+
+      // Notificar a los listeners para actualizar la UI
+      notifyListeners();
+    } else {}
+  }
+
+  Future<void> mostrarPopDeGuardarCancionEnPlaylist(
+      BuildContext context, Cancion cancion) async {
+    return showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Seleccione la playList:'),
+          actions: [
+            SizedBox(
+              height: 200.0,
+              width: double.maxFinite,
+              child: ListView.builder(
+                itemCount: listasDePlaylists.length,
+                itemBuilder: (BuildContext context, int index) {
+                  PlaylistMyApp playlist = listasDePlaylists[index];
+                  return ListTile(
+                    title: Text(playlist.nombre),
+                    subtitle: Text(
+                        "Cantidad de canciones: ${playlist.canciones.length}"),
+                    onTap: () {
+                      agregarCancionAPlaylist(playlist.nombre, cancion);
+                      ScaffoldMessenger.of(context).clearSnackBars();
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                              'Se Agrego ${cancion.title} a ${playlist.nombre}'),
+                          showCloseIcon: true,
+                        ),
+                      );
+                      Navigator.of(context).pop();
+                    },
+                  );
+                },
+              ),
+            ),
+          ],
+        );
+      },
+    );
   }
 }

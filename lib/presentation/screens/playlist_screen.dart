@@ -190,7 +190,10 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
                           child: ElevatedButton.icon(
                             icon: const Icon(Icons.play_arrow),
                             label: const Text('Reproducir'),
-                            onPressed: () {},
+                            onPressed: () {
+                              audioProvider
+                                  .agregarPlaylistACola(playlists.nombre);
+                            },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFFE8E1C6),
                               foregroundColor: const Color(0xFF0A2E1F),
@@ -202,7 +205,10 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
                           child: OutlinedButton.icon(
                             icon: const Icon(Icons.shuffle),
                             label: const Text('Aleatorio'),
-                            onPressed: () {},
+                            onPressed: () {
+                              audioProvider.agregarPlaylistAColaAleatoria(
+                                  playlists.nombre);
+                            },
                             style: OutlinedButton.styleFrom(
                               foregroundColor: const Color(0xFFE8E1C6),
                               side: const BorderSide(color: Color(0xFFE8E1C6)),
